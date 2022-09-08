@@ -34,6 +34,7 @@ public class Lab1b {
                 label.setText("Blocked by thread 1");
             }
         });
+
         JButton buttonStart2 = new JButton("Start 2");
         buttonStart2.addActionListener(e -> {
             if(semaphore.get() == 0) {
@@ -41,6 +42,7 @@ public class Lab1b {
                 label.setText("Blocked by thread 2");
             }
         });
+
         JButton buttonStop1 = new JButton("Stop 1");
         buttonStop1.addActionListener(e -> {
             if(semaphore.get() == 1) {
@@ -48,6 +50,7 @@ public class Lab1b {
                 label.setText("Not blocked by any threads");
             }
         });
+
         JButton buttonStop2 = new JButton("Stop 2");
         buttonStop2.addActionListener(e -> {
             if(semaphore.get() == 2) {
