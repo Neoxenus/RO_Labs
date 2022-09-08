@@ -11,6 +11,7 @@ public class Lab1a {
     private final static JSlider slider;
     private static JSpinner spinner1;
     private static JSpinner spinner2;
+
     private static Thread th1;
     private static Thread th2;
 
