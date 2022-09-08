@@ -18,6 +18,7 @@ public class Lab1a {
     static {
         slider = new JSlider(JSlider.HORIZONTAL, SLIDER_MIN, SLIDER_MAX, SLIDER_INIT);
     }
+
     private static void graphic(){
         JFrame frame = new JFrame();
         GridBagConstraints constraints = new GridBagConstraints();
