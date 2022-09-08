@@ -111,6 +111,7 @@ public class Lab1b {
                 }
             }
         });
+
         Thread th2 = new Thread(() -> {
             while (true) {
                 synchronized (slider) {
