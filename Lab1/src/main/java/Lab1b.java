@@ -10,7 +10,7 @@ public class Lab1b {
     private final static int SLIDER_INIT = 50;
 
     private final static JSlider slider;
-    private static final AtomicInteger semaphore;
+    private static volatile AtomicInteger semaphore;
 
     static {
         slider = new JSlider(JSlider.HORIZONTAL, SLIDER_MIN, SLIDER_MAX, SLIDER_INIT);
