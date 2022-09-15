@@ -16,7 +16,7 @@ public class Lab1b {
         slider = new JSlider(JSlider.HORIZONTAL, SLIDER_MIN, SLIDER_MAX, SLIDER_INIT);
         semaphore = new AtomicInteger(0);
     }
-    private static void graphic(){
+    private static void GUI(){
         JFrame frame = new JFrame();
         GridBagConstraints constraints = new GridBagConstraints();
         JPanel panel = new JPanel(new GridBagLayout());
@@ -59,25 +59,25 @@ public class Lab1b {
             }
         });
 
-        position(constraints, 50, 25, 0, 3);
+        graphicsHelper(constraints, 50, 25, 0, 3);
         constraints.insets = new Insets(25,0,0,50);
         panel.add(buttonStart1, constraints);
-        position(constraints, 50, 25, 1, 3);
+        graphicsHelper(constraints, 50, 25, 1, 3);
         constraints.insets = new Insets(25,0,0,0);
         panel.add(buttonStart2, constraints);
-        position(constraints, 50, 25, 0, 4);
+        graphicsHelper(constraints, 50, 25, 0, 4);
         constraints.insets = new Insets(10,0,0,50);
         panel.add(buttonStop1, constraints);
-        position(constraints, 50, 25, 1, 4);
+        graphicsHelper(constraints, 50, 25, 1, 4);
         constraints.insets = new Insets(10,0,0,0);
         panel.add(buttonStop2, constraints);
 
-        position(constraints, 0, 0, 0, 0);
+        graphicsHelper(constraints, 0, 0, 0, 0);
         constraints.gridwidth = 2;
         constraints.insets = new Insets(0,0,0,0);
         panel.add(slider, constraints);
 
-        position(constraints, 0, 0, 0, 5);
+        graphicsHelper(constraints, 0, 0, 0, 5);
         constraints.gridwidth = 2;
         constraints.insets = new Insets(20,0,FRAME_HEIGHT - 500,0);
         panel.add(label, constraints);
@@ -87,7 +87,7 @@ public class Lab1b {
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
-    private static void position(GridBagConstraints constraints, int ipadx, int ipady, int gridx, int gridy){
+    private static void graphicsHelper(GridBagConstraints constraints, int ipadx, int ipady, int gridx, int gridy){
         constraints.ipadx = ipadx;
         constraints.ipady = ipady;
         constraints.gridx = gridx;
@@ -95,7 +95,7 @@ public class Lab1b {
     }
 
     public static void main(String[] args) {
-        graphic();
+        GUI();
 
         Thread th1 = new Thread(() -> {
             while (true) {

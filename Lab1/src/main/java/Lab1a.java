@@ -19,7 +19,7 @@ public class Lab1a {
         slider = new JSlider(JSlider.HORIZONTAL, SLIDER_MIN, SLIDER_MAX, SLIDER_INIT);
     }
 
-    private static void graphic(){
+    private static void GUI(){
         JFrame frame = new JFrame();
         GridBagConstraints constraints = new GridBagConstraints();
         JPanel panel = new JPanel(new GridBagLayout());
@@ -41,16 +41,16 @@ public class Lab1a {
             }
         });
 
-        position(constraints, 50, 50, 0, 1);
+        graphicsHelper(constraints, 50, 50, 0, 1);
         constraints.insets = new Insets(0,20,0,20);
         panel.add(spinner1, constraints);
-        position(constraints, 50, 50, 1, 1);
+        graphicsHelper(constraints, 50, 50, 1, 1);
         constraints.insets = new Insets(0,20,0,20);
         panel.add(spinner2, constraints);
-        position(constraints, 0, 0, 0, 0);
+        graphicsHelper(constraints, 0, 0, 0, 0);
         constraints.gridwidth = 2;
         panel.add(slider, constraints);
-        position(constraints, 100, 50, 0, 3);
+        graphicsHelper(constraints, 100, 50, 0, 3);
         constraints.gridwidth = 2;
         constraints.insets = new Insets(50,0,FRAME_HEIGHT - 350,0);
         panel.add(button, constraints);
@@ -61,7 +61,7 @@ public class Lab1a {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    private static void position(GridBagConstraints constraints, int ipadx, int ipady, int gridx, int gridy){
+    private static void graphicsHelper(GridBagConstraints constraints, int ipadx, int ipady, int gridx, int gridy){
         constraints.ipadx = ipadx;
         constraints.ipady = ipady;
         constraints.gridx = gridx;
@@ -69,7 +69,7 @@ public class Lab1a {
     }
 
     public static void main(String[] args) {
-        graphic();
+        GUI();
 
         th1 = new Thread(() -> {
             while (true) {
