@@ -27,19 +27,19 @@ public class Lab2a {
 
 
     public static void main(String[] args) {
-        int x = (int)(Math.random() * forestSize);
-        int y = (int)(Math.random() * forestSize);
+        int x = 99;//(int)(Math.random() * forestSize);
+        int y = 1;//(int)(Math.random() * forestSize);
 
         forest[x][y] = 1;
 
-        for (int i = 0; i < forestSize && !isFound.get(); i++) {
+        for (int i = 0; i < forestSize || !isFound.get(); ++i) {
             Thread thread = new Thread(getRunnable());
             thread.start();
         }
     }
 
     private static synchronized int getNextAreaFromBackPack() {
-        if(!isFound.get()) {
+        if(!isFound.get() && counterOfArea.get() < forestSize) {
             System.out.println(counterOfArea.get());
             return counterOfArea.getAndIncrement();
         } else {
