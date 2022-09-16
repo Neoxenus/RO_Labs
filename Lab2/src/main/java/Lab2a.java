@@ -6,11 +6,13 @@ import static java.lang.Thread.currentThread;
 public class Lab2a {
 
     private static final int[][] forest;
+    private static final int forestSize;
     private static final AtomicInteger counterOfArea;
     private static final AtomicBoolean isFound;
 
     static {
-        forest = new int[100][100];
+        forestSize = 100;
+        forest = new int[forestSize][forestSize];
         counterOfArea = new AtomicInteger(0);
         isFound = new AtomicBoolean(false);
     }
@@ -25,24 +27,20 @@ public class Lab2a {
 
 
     public static void main(String[] args) {
-        int x = (int)(Math.random() * 100);
-        int y = (int)(Math.random() * 100);
+        int x = (int)(Math.random() * forestSize);
+        int y = (int)(Math.random() * forestSize);
 
         forest[x][y] = 1;
 
-        Thread thread1 = new Thread(getRunnable());
-        Thread thread2 = new Thread(getRunnable());
-        Thread thread3 = new Thread(getRunnable());
-
-
-        thread1.start();
-        thread2.start();
-        thread3.start();
-
+        for (int i = 0; i < forestSize && !isFound.get(); i++) {
+            Thread thread = new Thread(getRunnable());
+            thread.start();
+        }
     }
 
     private static synchronized int getNextAreaFromBackPack() {
         if(!isFound.get()) {
+            System.out.println(counterOfArea.get());
             return counterOfArea.getAndIncrement();
         } else {
             currentThread().interrupt();
@@ -54,7 +52,7 @@ public class Lab2a {
         if(row == -1) {
             return;
         }
-        for(int i = 0; i < 100; ++i) {
+        for(int i = 0; i < forestSize; ++i) {
             if(forest[row][i] == 1) {
                 isFound.set(true);
                 System.out.println("Y:" + row + "; X:" + i);
