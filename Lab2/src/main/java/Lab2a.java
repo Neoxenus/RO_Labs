@@ -27,8 +27,8 @@ public class Lab2a {
 
 
     public static void main(String[] args) {
-        int x = 99;//(int)(Math.random() * forestSize);
-        int y = 1;//(int)(Math.random() * forestSize);
+        int x = (int)(Math.random() * forestSize);
+        int y = (int)(Math.random() * forestSize);
 
         forest[x][y] = 1;
 
