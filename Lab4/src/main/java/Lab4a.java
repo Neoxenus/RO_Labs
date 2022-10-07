@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Lab4a {
     public static final String FILE_NAME = "records.txt";
     public static final String PHONE_NUMBER_REGEX = "^\\+?\\d{10,12}$";
-    public static final String NAME_REGEX = "[a-zA-Z]+";
+    public static final String NAME_REGEX = "[a-zA-Z]+[0-9]*";
 
     public static final AtomicBoolean readLock = new AtomicBoolean(false);
     public static final AtomicBoolean writeLock = new AtomicBoolean(false);
@@ -46,7 +46,7 @@ public class Lab4a {
                         System.out.println("Wrong phone number input");
                         break;
                     }
-                    String record = name + " - " + phoneNumber;
+                    String record = name + " - " + phoneNumber + "\n";
                     new Thread(() -> addNewRecord(record)).start();
                 }
                 case 4 -> {

@@ -15,8 +15,7 @@ var graph = [][]int{
 var lock sync.RWMutex
 var wg sync.WaitGroup
 
-const MaxUint = ^uint(0)
-const INT_MAX = int(MaxUint >> 1)
+const INT_MAX = int(^uint(0) >> 1)
 
 func changePrice(city1 int, city2 int, price int) {
 	lock.Lock()

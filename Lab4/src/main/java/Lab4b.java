@@ -15,7 +15,7 @@ public class Lab4b {
     }
     private void start (){
         new Thread(this::lookAfterGarden).start();
-        new Thread(this::changeNature).start();
+        new Thread(this::changePlantStatus).start();
         new Thread(this::writeToFile).start();
         new Thread(this::printFromFile).start();
     }
@@ -69,7 +69,7 @@ public class Lab4b {
             timeForProcess(1000);
         }
     }
-    private void changeNature() {
+    private void changePlantStatus() {
         while(true) {
             for (int i = 0; i < garden.length; ++i) {
                 for (int j = 0; j < garden[0].length; ++j) {
