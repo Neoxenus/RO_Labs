@@ -1,170 +1,188 @@
 package Cannon;
 
-import com.company.Matrix;
+import mpi.Datatype;
 import mpi.MPI;
-import mpi.Request;
-import mpi.Status;
+
+import static java.lang.Math.sqrt;
 
 public class Cannon {
+    private static final int MATRIX_SIZE = 1000;
+    private static final boolean SHOW_RESULT = MATRIX_SIZE <=10;
 
-    /**
-     * Generates a random matrix with numElements elements
-     */
-//    static void generateRandomMatrix(double[] matrix) {
-//        Random random = new Random();
-//        for (int i = 0; i < matrix.length; ++i) {
-//            //values[i] = random.nextDouble();
-//            matrix[i] = random.nextInt() % 100;
-//        }
-//    }
+    private static int[][] MatrixA, MatrixB, MatrixC;
+    private static int[] blockA, blockB, blockC, tempA, tempB;
+    private static int sizeOfBlock, sizeOfBlock2, numProcess, sqrtNumProcess;
 
-    /**
-     * Returns the ID of the process in the mesh in column-major distribution according to
-     * the coordinates provided and the size of the mesh.
-     * The mesh has to be of size x size obligatorily.
-     */
-    static int getProcessNumber(int row, int column, int size) {
-        if (row < 0)
-            row += size;
-        if (column < 0)
-            column += size;
-        if (row >= size)
-            row -= size;
-        if (column >= size)
-            column -= size;
+    public static void main(String[] args) {
+        MPI.Init(args);
 
-        return column * size + row;
+        numProcess = MPI.COMM_WORLD.Size();
+        int myRank = MPI.COMM_WORLD.Rank();
+
+        sqrtNumProcess = (int) sqrt(numProcess);
+        if (sqrtNumProcess * sqrtNumProcess != numProcess) {
+            if (myRank == 0)
+                System.out.println("Number of processors is not a quadratic number!\n");
+            MPI.Finalize();
+            return;
+        }
+        sizeOfBlock = MATRIX_SIZE / sqrtNumProcess;
+        sizeOfBlock2 = sizeOfBlock * sizeOfBlock;
+        int myCol =  myRank % sqrtNumProcess;
+        int myRow = (myRank - myCol) / sqrtNumProcess;
+
+        blockA = new int[sizeOfBlock2];
+        blockB = new int[sizeOfBlock2];
+        blockC = new int[sizeOfBlock2];
+        for(int i = 0; i< sizeOfBlock2; ++i)
+            blockC[i] = 0;
+        tempA = new int[sizeOfBlock2];
+        tempB = new int[sizeOfBlock2];
+
+        long start = 0;
+        if (myRank == 0) {
+
+            MatrixA = new int[MATRIX_SIZE][MATRIX_SIZE];
+            MatrixB = new int[MATRIX_SIZE][MATRIX_SIZE];
+            MatrixC = new int[MATRIX_SIZE][MATRIX_SIZE];
+            randomAB();
+            if(SHOW_RESULT){
+                print(MatrixA);
+                print(MatrixB);
+            }
+            start = System.currentTimeMillis();
+            scatterAB();
+        } else {
+            MPI.COMM_WORLD.Recv(blockA,0, sizeOfBlock2, MPI.INT, 0 , 1);
+            MPI.COMM_WORLD.Recv(blockB, 0, sizeOfBlock2, MPI.INT, 0 , 2);
+        }
+        initAlignment(myRow,myCol);
+
+        mainShift(myRow,myCol);
+
+        if(myRank == 0)
+            togetherResult();
+         else
+            MPI.COMM_WORLD.Send(blockC,0, sizeOfBlock2,MPI.INT,0,1);
+
+        MPI.COMM_WORLD.Barrier();
+        if(myRank == 0){
+            long stop = System.currentTimeMillis();
+            System.out.println("Time: " + (stop - start) + "ms");
+            if(SHOW_RESULT)
+                print(MatrixC);
+        }
+
+
+        MPI.Finalize();
     }
 
-    /**
-     * Calls the cannon function to solve a matrix-matrix multiplication problem
-     *
-     * Parameters:
-     * p = number of processes
-     * pr = process mesh row coordinate
-     * pc = process mesh column coordinate
-     * n = (real) size of matrices
-     * C = final matrix to calculate
-     * A = one of the matrices in the operation
-     * B = the other matrix for the operation
-     */
-    static void cannon(int p, int pr, int pc, int n, Matrix C, Matrix A,
-                       Matrix B) {
+    private static int getIndex(int row, int col, int sqrtNum) {
+        return ((row + sqrtNum) % sqrtNum) * sqrtNum + (col + sqrtNum) % sqrtNum;
+    }
 
-        /* Starting mesurements */
-        int numLocalElements = n / p;
-        Request[] requests = new Request[2];//0 - left; 1 - top
-        Status rreq_bottom = new Status();
-        Status rreq_right = new Status();
-        int maxSteps = (int) Math.sqrt(p);
-
-        //to exchange buffers
-        //double[] aux;
-        double[] auxA = new double[numLocalElements];
-        double[] auxB = new double[numLocalElements];
-
-        int left = getProcessNumber(pr, pc - 1, maxSteps);
-        int right = getProcessNumber(pr, pc + 1, maxSteps);
-        int top = getProcessNumber(pr - 1, pc, maxSteps);
-        int bottom = getProcessNumber(pr + 1, pc, maxSteps);
-
-        //for the first receiving
-        int firstRecvA = getProcessNumber(pr, (pr + pc) % p, maxSteps);
-        int firstRecvB = getProcessNumber((pr + pc) % p, pc, maxSteps);
-
-        //for the first sending
-        int distA = ((pr + pc) % p) - pc;
-        distA = distA < 0 ? distA + maxSteps : distA;
-        int firstSendA = getProcessNumber(pr, pc - distA, maxSteps);
-
-        int distB = ((pr + pc) % p) - pr;
-        distB = distB < 0 ? distB + maxSteps : distB;
-        int firstSendB = getProcessNumber(pr - distB, pc, maxSteps);
-
-        // sending my information of A
-        requests[0] = MPI.COMM_WORLD.Isend(A.getValues(), 0, numLocalElements, MPI.DOUBLE,firstSendA,0);
+    private static void randomAB() {
+        for(int i = 0; i < MATRIX_SIZE; ++i)
+            for(int j = 0; j < MATRIX_SIZE; ++j) {
+                MatrixA[i][j] = (int) (Math.random()*10);
+                MatrixB[i][j] = (int) (Math.random()*10);
+                MatrixC[i][j] = 0;
+            }
+    }
 
 
-        //receiving the information about A
-        rreq_right = MPI.COMM_WORLD.Recv(auxA, 0, numLocalElements, MPI.DOUBLE, firstRecvA,0);
+    private static void scatterAB() {
+        int l;
+        int pIMin,pIMax,pJMin,pJMax;
+        for(int k=0; k< numProcess; ++k) {
+            pJMin = (k % sqrtNumProcess) * sizeOfBlock;
+            pJMax = (k % sqrtNumProcess + 1) * sizeOfBlock - 1;
+            pIMin = (k - (k % sqrtNumProcess))/ sqrtNumProcess * sizeOfBlock;
+            pIMax = ((k - (k % sqrtNumProcess))/ sqrtNumProcess + 1) * sizeOfBlock - 1;
+            l = 0;
 
-        //sending my information of B
-        requests[1] = MPI.COMM_WORLD.Isend(B.getValues(), 0, numLocalElements, MPI.DOUBLE,firstSendB,0);
-
-        //receiving the information about B
-        rreq_bottom = MPI.COMM_WORLD.Recv(auxB, 0, numLocalElements, MPI.DOUBLE, firstRecvB,0);
-
-        //we have to block after the sending operation!
-        /* Note: for big values of n it starts to fail. It is necessary to determine
-         * when the sending operation has finished. Otherwise the buffer is read and written
-         * at the same time, producing errors that have been empirically found out looking at the
-         * residual norm once the program was completed.
-         */
-        Request.Waitall(requests);
-
-        //swapping buffers
-        //aux = A.getValues();
-        //A.setValues(auxA);
-        auxA = A.getValues();
-
-        //aux = B.getValues();
-        //B.setValues(auxB);
-        auxB = B.getValues();
-
-        /* Finishing measurements */
-
-        for (int step = 0; step < maxSteps; ++step) {
-            for (int i = 0; i < A.getNRows(); i++) {
-                for (int j = 0; j < B.getNCols(); j++) {
-                    C.set(i, j, 0.0);
-                    for (int k = 0; k < B.getNRows(); k++) {
-                        C.incr(i, j, A.get(i, k) * B.get(k, j));
-                    }
+            for(int i=pIMin; i<=pIMax; ++i) {
+                for(int j=pJMin; j<=pJMax; ++j) {
+                    tempA[l] = MatrixA[i][j];
+                    tempB[l] = MatrixB[i][j];
+                    ++l;
                 }
             }
-            //TESTING OUTPUT IN DIFFERENT ITERATIONS
-//            File myObj = new File("output"+getProcessNumber(pr,pc,maxSteps)+".txt");
-//            try {
-//
-//                    FileWriter myWriter = new FileWriter("output"+getProcessNumber(pr,pc,maxSteps)+".txt");
-//                myWriter.write("======================================================================================\n");
-//
-//                for (int i = 0; i < C.getNRows(); i++) {
-//                    for (int j = 0; j < C.getNCols(); j++) {
-//                        myWriter.write(C.getValues()[i * C.getNCols() + j] + " ");
-//                    }
-//                    myWriter.write("\r\n");
-//                }
-//                myWriter.write("======================================================================================\n");
-//                    myWriter.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-            if (step < maxSteps - 1) {
-                //t = clock();
-                //System.out.println("ss");
-                // sending my information of A
-                requests[0] = MPI.COMM_WORLD.Isend(A.getValues(), 0, numLocalElements, MPI.DOUBLE, left, 0);
-                //receiving the information about A
-                rreq_right = MPI.COMM_WORLD.Recv(auxA, 0, numLocalElements, MPI.DOUBLE, right, 0);
 
-                //sending my information of B
-                requests[1] = MPI.COMM_WORLD.Isend(B.getValues(), 0, numLocalElements, MPI.DOUBLE, top, 0);
-                //receiving the information about B
-                rreq_bottom = MPI.COMM_WORLD.Recv(auxB, 0, numLocalElements, MPI.DOUBLE, bottom, 0);
-
-                //waiting for the send to finish
-                Request.Waitall(requests);
-
-                //swapping buffers
-               // aux = A.getValues();
-                //A.setValues(auxA);
-                //auxA = aux;
-
-                //aux = B.getValues();
-                //B.setValues(auxB);
-                //auxB = aux;
+            if(k==0) {
+                System.arraycopy(tempA, 0, blockA, 0, sizeOfBlock2);
+                System.arraycopy(tempB, 0, blockB, 0, sizeOfBlock2);
+            } else {
+                MPI.COMM_WORLD.Send(tempA, 0, sizeOfBlock2, MPI.INT, k, 1);
+                MPI.COMM_WORLD.Send(tempB,0, sizeOfBlock2, MPI.INT, k, 2);
             }
         }
     }
+
+    private static void initAlignment(int myRow, int myCol) {
+
+        MPI.COMM_WORLD.Sendrecv(blockA, 0, sizeOfBlock2, MPI.INT, getIndex(myRow,myCol-myRow, sqrtNumProcess), 1,
+                tempA, 0, sizeOfBlock2, MPI.INT, getIndex(myRow,myCol+myRow, sqrtNumProcess), 1);
+        System.arraycopy(tempA, 0, blockA, 0, sizeOfBlock2);
+
+        MPI.COMM_WORLD.Sendrecv(blockB, 0, sizeOfBlock2, MPI.INT, getIndex(myRow-myCol,myCol, sqrtNumProcess), 1,
+                tempB, 0, sizeOfBlock2, MPI.INT, getIndex(myRow+myCol,myCol, sqrtNumProcess), 1);
+        System.arraycopy(tempB,0, blockB,0, sizeOfBlock2);
+
+    }
+
+    private static void mainShift(int myRow, int myCol) {
+        for(int l=0; l< sqrtNumProcess; ++l) {
+
+            for(int i=0; i< sizeOfBlock; ++i)
+                for(int j=0; j< sizeOfBlock; ++j)
+                    for(int k=0; k< sizeOfBlock; ++k)
+                        blockC[i* sizeOfBlock +j] += blockA[i * sizeOfBlock + k] * blockB[k * sizeOfBlock + j];
+            MPI.COMM_WORLD.Sendrecv_replace(blockA, 0, sizeOfBlock2, MPI.INT, getIndex(myRow, myCol-1, sqrtNumProcess),
+                    1,getIndex(myRow, myCol + 1, sqrtNumProcess),1);
+            MPI.COMM_WORLD.Sendrecv_replace(blockB, 0, sizeOfBlock2, MPI.INT, getIndex(myRow-1, myCol, sqrtNumProcess),
+                    1,getIndex(myRow+1, myCol, sqrtNumProcess),1);
+
+        }
+    }
+
+    private static void togetherResult() {
+        int i2,j2;
+        int pIMin,pIMax,pJMin,pJMax;
+
+        for (int i = 0; i < sizeOfBlock; ++i)
+            System.arraycopy(blockC, i * sizeOfBlock, MatrixC[i], 0, sizeOfBlock);
+
+        for (int k = 1; k < numProcess; ++k) {
+
+            MPI.COMM_WORLD.Recv(blockC, 0, sizeOfBlock2, MPI.INT, k, 1);
+            pJMin = (k % sqrtNumProcess) * sizeOfBlock;
+            pJMax = (k % sqrtNumProcess + 1) * sizeOfBlock - 1;
+            pIMin =  (k - (k % sqrtNumProcess)) / sqrtNumProcess * sizeOfBlock;
+            pIMax = ((k - (k % sqrtNumProcess)) / sqrtNumProcess + 1) * sizeOfBlock -1;
+
+            i2=0;
+
+            for(int i=pIMin; i<=pIMax; ++i) {
+                j2=0;
+                for(int j=pJMin; j<=pJMax; ++j) {
+                    MatrixC[i][j] = blockC[i2* sizeOfBlock +j2];
+                    j2++;
+                }
+                i2++;
+            }
+        }
+    }
+
+
+    private static void print(int[][] m) {
+        System.out.println("=================================================================================");
+        for(int i = 0; i< MATRIX_SIZE; ++i) {
+            for(int j = 0; j< MATRIX_SIZE; ++j)
+                System.out.printf("%15d    ",m[i][j]);
+            System.out.print("\n");
+        }
+        System.out.println("=================================================================================");
+    }
 }
+
