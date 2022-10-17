@@ -33,7 +33,7 @@ type Semaphore struct {
 }
 
 func NewSemaphore() *Semaphore {
-	return &Semaphore{n: make(chan int, 1)}
+	return &Semaphore{n: make(chan int, 5)}
 }
 
 func (sem Semaphore) acquire() {
@@ -44,7 +44,7 @@ func (sem Semaphore) release() {
 	<-sem.n
 }
 func (sem Semaphore) availablePermits() int {
-	return 1 - len(sem.n)
+	return 5 - len(sem.n)
 }
 
 // ///////////////////

@@ -80,26 +80,28 @@ func barrier(c chan int) {
 	}
 	wgBarrier.Done()
 }
+
 func printAll() {
 	fmt.Println(array1, sumArray(array1))
 	fmt.Println(array2, sumArray(array2))
 	fmt.Println(array3, sumArray(array3))
 	fmt.Println("---------------------------------")
 }
+
 func makeArrays() {
 	array1 = randomArray()
 	array2 = randomArray()
 	array3 = randomArray()
-	if (sumArray(array1)-sumArray(array2))%2 != 0 && (sumArray(array2)-sumArray(array3))%2 != 0 {
+	if (sumArray(array1)-sumArray(array2)) % 2 != 0 && (sumArray(array2)-sumArray(array3)) % 2 != 0 {
 		array2[0]--
-	} else if (sumArray(array1)-sumArray(array3))%2 != 0 && (sumArray(array2)-sumArray(array3))%2 != 0 {
+	} else if (sumArray(array1)-sumArray(array3)) % 2 != 0 && (sumArray(array2)-sumArray(array3)) % 2 != 0 {
 		array3[0]--
-	} else if (sumArray(array1)-sumArray(array3))%2 != 0 && (sumArray(array2)-sumArray(array1))%2 != 0 {
+	} else if (sumArray(array1)-sumArray(array3)) % 2 != 0 && (sumArray(array2)-sumArray(array1)) % 2 != 0 {
 		array1[0]--
 	}
 	printAll()
-
 }
+
 func main() {
 	rand.Seed(time.Now().Unix())
 	makeArrays()
@@ -114,5 +116,4 @@ func main() {
 		wgBarrier.Wait()
 		printAll()
 	}
-
 }
