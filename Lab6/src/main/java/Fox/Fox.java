@@ -3,10 +3,8 @@ package Fox;
 import Matrix.Matrix;
 import mpi.Cartcomm;
 import mpi.MPI;
-
 public class Fox {
     private final static int MATRIX_SIZE = 1000;
-
     private static class Grid {
         int processCount;
         int dimensions;
@@ -25,13 +23,6 @@ public class Fox {
             this.processCount = MPI.COMM_WORLD.Size();
             this.worldRank = MPI.COMM_WORLD.Rank();
 
-//            if (!isPowerOfTwo(this.processCount)) {
-//                if (this.worldRank == 0) {
-//                    System.out.println("Error! Number of processors should be even power of two (1, 4, 16, 64, etc...)");
-//                }
-//                MPI.Finalize();
-//                System.exit(1);
-//            }
 
             this.dimensions = (int) Math.sqrt(this.processCount);
             dimensions[0] = this.dimensions;
@@ -52,18 +43,6 @@ public class Fox {
         }
     }
 
-    private static boolean isPowerOfTwo(int n) {
-        int value = 0;
-        int i = 0;
-        while (value < n) {
-            value = (int) Math.pow(2, i);
-            if (value == n) {
-                return i % 2 == 0;
-            }
-            i++;
-        }
-        return false;
-    }
 
     private static void unpack_matrix(int[] buff, Matrix a, int size) {
         int k = 0;
@@ -77,7 +56,6 @@ public class Fox {
 
     private static void fox_multiply(int matrixSize, Grid grid, Matrix a, Matrix b, Matrix c)
     {
-        //Status status;
         int blockSize = matrixSize / grid.dimensions;
         Matrix tempA = new Matrix(blockSize);
         int[] buff;

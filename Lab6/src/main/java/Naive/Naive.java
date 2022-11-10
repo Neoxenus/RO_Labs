@@ -3,7 +3,7 @@ package Naive;
 import Matrix.Matrix;
 
 public class Naive {
-    private static final int MATRIX_SIZE = 1000;
+    private static final int MATRIX_SIZE = 2;
     private static final boolean SHOW_RESULT = MATRIX_SIZE <=10;
 
     public static void main(String[] args) {
