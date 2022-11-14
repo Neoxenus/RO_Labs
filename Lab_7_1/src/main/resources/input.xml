@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE Company SYSTEM "input.dtd">
+<Company>
+    <Department id="d0" name="William Blake">
+        <Worker id="w0" name="London"/>
+        <Worker id="w1" name="The Tyger"/>
+    </Department>
+    <Department id="d1" name="Charles Dickens">
+        <Worker id="w2" name="Hey"/>
+    </Department>
+    <Department id="d2" name="George Orwell">
+        <Worker id="w3" name="1984"/>
+    </Department>
+    <Department id="d3" name="Stephen King">
+        <Worker id="w4" name="The Running Man"/>
+        <Worker id="w5" name="11/22/63"/>
+    </Department>
+</Company>

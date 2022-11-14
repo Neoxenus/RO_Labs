@@ -1,0 +1,11 @@
+<!ELEMENT Company (Department*)>
+        <!ELEMENT Department (Worker*)>
+        <!ELEMENT Worker (#PCDATA)>
+        <!ATTLIST Department
+                id ID #REQUIRED
+                name CDATA #REQUIRED
+                >
+        <!ATTLIST Worker
+                id ID #REQUIRED
+                name CDATA #REQUIRED
+                >
