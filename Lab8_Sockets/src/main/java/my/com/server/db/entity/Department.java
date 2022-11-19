@@ -1,10 +1,21 @@
-package my.com.db.entity;
+package my.com.server.db.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Department {
+public class Department implements Serializable {
 
+	@Serial
+	private static final long serialVersionUID = 234567L;
+
+	@Getter
 	private int id;
+	@Getter
+	@Setter
 	private String name;
 
 	public Department(int id, String name) {
@@ -16,20 +27,6 @@ public class Department {
 		return new Department(0, name);
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
-	}
-	public static Department createTeam(String name){
-		return new Department(0, name);
-	}
-
-	public int getId() {
-		return id;
-	}
 
 	@Override
 	public String toString() {
