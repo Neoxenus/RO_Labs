@@ -1,4 +1,8 @@
-package my.com.db;
+package my.com.server.db;
+
+import my.com.server.Constants;
+import my.com.server.db.entity.Department;
+import my.com.server.db.entity.Worker;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -6,11 +10,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import my.com.Constants;
-//import my.com.*;
-import my.com.db.entity.Department;
-import my.com.db.entity.Worker;
 
 
 public class DBManager {
@@ -22,7 +21,6 @@ public class DBManager {
 		try {
 			Properties properties = new Properties();
 			properties.load(new FileInputStream(Constants.SETTINGS_FILE));
-			//System.out.println(properties.getProperty("connection.url"));
 			connection = DriverManager.getConnection(properties.getProperty("connection.url"));
 		} catch (IOException | SQLException e) {
 			throw new RuntimeException(e);

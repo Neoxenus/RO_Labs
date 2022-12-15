@@ -24,10 +24,10 @@ public class Company {
 
     public void createId(Worker worker) {
         int id = workerArray.size();
-        String idToString = "id" + id;
+        String idToString = "w" + id;
         while(departmentArray.get(idToString) != null) {
             id++;
-            idToString = "id" + id;
+            idToString = "w" + id;
         }
         worker.setId(idToString);
     }

@@ -20,7 +20,7 @@ public class Server {
     public static void main(String[] args) {
         try {
             Server srv = new Server();
-            srv.start(2222);
+            srv.start(3333);
         } catch (IOException e) {
             System.out.println("Возникла ошибка");
         }

@@ -23,7 +23,7 @@ public class Client {
 
     public static void main(String[] args) {
         try {
-            Client client = new Client("localhost", 2222);
+            Client client = new Client("localhost", 3333);
             System.out.println(client.findAllDepartments());
             System.out.println(client.findAllWorkers());
             Worker newWorker = Worker.createWorker("worker1", 1);
@@ -39,6 +39,11 @@ public class Client {
             IOException {
         String query = operation + "#" + SerializationUtility.serialize(value);
         out.println(query);
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         String response = in.readLine();
         String[] fields = response.split("#");
         try {
