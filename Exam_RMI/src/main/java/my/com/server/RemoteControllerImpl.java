@@ -22,8 +22,12 @@ public class RemoteControllerImpl implements RemoteController {
     }
 
     @Override
-    public void addClient() {
+    public void addClient() throws RemoteException {
         numberOfClient++;
+    }
+    @Override
+    public void deleteClient() throws RemoteException {
+        numberOfClient--;
     }
 
     @Override

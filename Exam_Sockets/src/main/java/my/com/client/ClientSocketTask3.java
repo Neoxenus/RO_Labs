@@ -25,11 +25,14 @@ public class ClientSocketTask3 {
         try {
             ClientSocketTask3 client = new ClientSocketTask3("localhost", 3333);
             System.out.println(client.getPatientsWithDiagnosis("COVID-19"));
-            System.out.println(client.getPatientsWithMedicineCardsInRange(123-456-789, 345-456-789));
+            System.out.println(client.getPatientsWithMedicineCardsInRange(123_456_789, 345_456_789));
+            Thread.sleep(10000);
             client.disconnect();
         } catch (IOException e) {
             System.out.println("Виникла помилка");
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

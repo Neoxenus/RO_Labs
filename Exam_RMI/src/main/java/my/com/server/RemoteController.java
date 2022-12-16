@@ -11,6 +11,7 @@ public interface RemoteController extends Remote {
     int getNumberClients() throws RemoteException;
 
     void addClient() throws RemoteException;
+    void deleteClient() throws RemoteException;
 
     List<Patient> getPatientsWithDiagnosis(String diagnosis) throws RemoteException;
 

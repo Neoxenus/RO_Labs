@@ -15,16 +15,16 @@ public class DAO {
 	}
 	private void init(){
 		Patient p1 = new Patient(1, "Petrov", "Petro", "Petrovych"
-				, "Kyivska str.", "+390123456789", 123-456-789
+				, "Kyivska str.", "+390123456789", 123_456_789
 				, "COVID-19"  );
 		Patient p2 = new Patient(1, "Stepaniuk", "Stepan", "Stepanovych"
-				, "Vinnytskia str.", "+390345678912", 345-456-789
+				, "Vinnytskia str.", "+390345678912", 345_456_789
 				, "COVID-19"  );
 		Patient p3 = new Patient(1, "Ivanov", "Ivan", "Ivanovych"
-				, "Soborna str.", "+390234567891", 234-456-789
+				, "Soborna str.", "+390234567891", 234_456_789
 				, "Influenza"  );
 		Patient p4 = new Patient(1, "Volodymyrhiuk", "Volodymyr", "Volodymyrovych"
-				, "Hlibna str.", "+390456789123", 432-456-789
+				, "Hlibna str.", "+390456789123", 432_456_789
 				, "COVID-19"  );
 		entry.addAll(List.of(new Patient[]{p1, p2, p3, p4}));
 	}
